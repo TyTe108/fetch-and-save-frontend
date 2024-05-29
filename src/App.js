@@ -1,66 +1,53 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import { fetchPosts, getPosts, deletePosts } from './api';
 import './App.css';
 
-const App = () => {
+function App() {
   const [posts, setPosts] = useState([]);
 
-  const fetchPosts = async () => {
+  const handleFetchPosts = async () => {
     try {
-      await axios.get('/fetch-posts');
-      getAllPosts();
+      await fetchPosts();
+      const posts = await getPosts();
+      setPosts(posts);
     } catch (error) {
-      console.error('Error fetching and saving posts', error);
+      console.error('Error fetching and saving posts:', error);
     }
   };
 
-  const getAllPosts = async () => {
+  const handleDeletePosts = async () => {
     try {
-      const response = await axios.get('/posts');
-      setPosts(response.data);
-    } catch (error) {
-      console.error('Error fetching posts', error);
-    }
-  };
-
-  const deletePosts = async () => {
-    try {
-      await axios.delete('/delete-posts');
+      await deletePosts();
       setPosts([]);
     } catch (error) {
-      console.error('Error deleting posts', error);
+      console.error('Error deleting posts:', error);
     }
   };
 
   return (
     <div className="container">
-      <h1>Fetch and Save Posts</h1>
-      <div className="button-container">
-        <button onClick={fetchPosts}>Fetch and Save Posts</button>
-        <button onClick={deletePosts}>Delete All Posts</button>
-      </div>
-      {posts.length > 0 && (
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Title</th>
-              <th>Body</th>
+      <button onClick={handleFetchPosts}>Fetch and Save Posts</button>
+      <button onClick={handleDeletePosts}>Delete All Posts</button>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Body</th>
+          </tr>
+        </thead>
+        <tbody>
+          {posts.map(post => (
+            <tr key={post.id}>
+              <td>{post.id}</td>
+              <td>{post.title}</td>
+              <td>{post.body}</td>
             </tr>
-          </thead>
-          <tbody>
-            {posts.map(post => (
-              <tr key={post.id}>
-                <td>{post.id}</td>
-                <td>{post.title}</td>
-                <td>{post.body}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+          ))}
+        </tbody>
+      </table>
     </div>
   );
-};
+}
 
 export default App;
